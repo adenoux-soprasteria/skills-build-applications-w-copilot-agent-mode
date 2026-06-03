@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const api_1 = require("./config/api");
 const database_1 = require("./config/database");
 const activities_1 = __importDefault(require("./routes/activities"));
 const leaderboard_1 = __importDefault(require("./routes/leaderboard"));
@@ -11,14 +12,9 @@ const teams_1 = __importDefault(require("./routes/teams"));
 const users_1 = __importDefault(require("./routes/users"));
 const workouts_1 = __importDefault(require("./routes/workouts"));
 const app = (0, express_1.default)();
-const port = 8000;
-const codespaceName = process.env.CODESPACE_NAME;
-const apiBaseUrl = codespaceName
-    ? `https://${codespaceName}-${port}.app.github.dev`
-    : `http://localhost:${port}`;
 app.use(express_1.default.json());
 app.get('/api/health', (_req, res) => {
-    res.json({ ok: true, service: 'octofit-backend', apiBaseUrl });
+    res.json({ ok: true, service: 'octofit-backend', apiBaseUrl: api_1.apiBaseUrl });
 });
 app.use('/api/users', users_1.default);
 app.use('/api/teams', teams_1.default);
@@ -34,8 +30,8 @@ const start = async () => {
     try {
         await (0, database_1.connectDatabase)();
         console.log('MongoDB connected');
-        app.listen(port, () => {
-            console.log(`Backend API running on ${apiBaseUrl}`);
+        app.listen(api_1.apiPort, () => {
+            console.log(`Backend API running on ${api_1.apiBaseUrl}`);
         });
     }
     catch (error) {
