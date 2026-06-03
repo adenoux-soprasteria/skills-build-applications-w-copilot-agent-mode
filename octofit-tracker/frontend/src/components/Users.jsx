@@ -1,0 +1,60 @@
+import { useEffect, useState } from 'react'
+import { fetchCollection } from '../api'
+
+const codespaceName = import.meta.env.VITE_CODESPACE_NAME
+const usersEndpoint = codespaceName
+  ? `https://${codespaceName}-8000.app.github.dev/api/users/`
+  : 'http://localhost:8000/api/users/'
+
+function Users() {
+  const [users, setUsers] = useState([])
+  const [status, setStatus] = useState('loading')
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    fetchCollection(usersEndpoint)
+      .then((items) => {
+        setUsers(items)
+        setStatus('ready')
+      })
+      .catch((requestError) => {
+        setError(requestError.message)
+        setStatus('error')
+      })
+  }, [])
+
+  return (
+    <section className="content-section">
+      <div className="section-heading">
+        <p className="eyebrow">Members</p>
+        <h1>Users</h1>
+      </div>
+      {status === 'loading' && <p className="text-muted">Loading users...</p>}
+      {status === 'error' && <p className="alert alert-warning">Unable to load users: {error}</p>}
+      {status === 'ready' && (
+        <div className="row g-3">
+          {users.map((user) => (
+            <div className="col-md-6 col-xl-4" key={user._id || user.userId || user.email}>
+              <article className="data-card h-100">
+                <h2>{user.name}</h2>
+                <p>{user.email}</p>
+                <dl>
+                  <div>
+                    <dt>Goal</dt>
+                    <dd>{user.fitnessGoal || 'Personal fitness'}</dd>
+                  </div>
+                  <div>
+                    <dt>Location</dt>
+                    <dd>{user.location || 'Remote'}</dd>
+                  </div>
+                </dl>
+              </article>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}
+
+export default Users
