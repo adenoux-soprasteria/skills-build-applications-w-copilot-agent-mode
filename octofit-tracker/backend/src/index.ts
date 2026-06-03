@@ -1,5 +1,5 @@
 import express, { ErrorRequestHandler } from 'express';
-import mongoose from 'mongoose';
+import { connectDatabase } from './config/database';
 import activitiesRouter from './routes/activities';
 import leaderboardRouter from './routes/leaderboard';
 import teamsRouter from './routes/teams';
@@ -8,7 +8,6 @@ import workoutsRouter from './routes/workouts';
 
 const app = express();
 const port = 8000;
-const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/octofit_db';
 const codespaceName = process.env.CODESPACE_NAME;
 const apiBaseUrl = codespaceName
   ? `https://${codespaceName}-${port}.app.github.dev`
@@ -35,7 +34,7 @@ app.use(errorHandler);
 
 const start = async (): Promise<void> => {
   try {
-    await mongoose.connect(mongoUri);
+    await connectDatabase();
     console.log('MongoDB connected');
 
     app.listen(port, () => {
